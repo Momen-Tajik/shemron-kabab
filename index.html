@@ -1,0 +1,837 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShemronKabab</title>
+    <script src="bootstrap.tutorial/bootstrap-4.6.2/dist/js/code.jquery.com_jquery-3.7.0.js"></script>
+    <script src="bootstrap.tutorial/bootstrap-4.6.2/dist/js/bootstrap.bundle.js"></script>
+    <link rel="stylesheet" href="bootstrap.tutorial/bootstrap-4.6.2/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="Content/style.css">
+    <link rel="stylesheet" href="Content/font-awesome.css">
+    <!-- <link rel="stylesheet" href="assets/owlcarousel/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="assets/owlcarousel/assets/owl.theme.default.min.css"> -->
+    <script>
+      
+       let foods=[
+         {"foodName":"کباب لقمه گوسفندی شمرون","description":"دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز","unitPrice":"450000","imageUrl":"images/Product-images/kabab.jpg","foodId":"1"}
+         , {"foodName":"جوجه کباب فیله شمرون","description":"یک سیخ جوجه بدون استخوان فیله ذغالی(500 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،سس انار،پیاز قرمز","unitPrice":"320000","imageUrl":"images/Product-images/joje.jpg","foodId":"2"}
+         , {"foodName":"جوجه با استخوان شمرون","description":"یک سیخ جوجه بااستخوان ذغالی(700 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،سس انار،پیاز قرمز","unitPrice":"320000","imageUrl":"images/Product-images/joje.ba.ostokhon.jpg","foodId":"3"}
+         , {"foodName":"جوجه کباب ران شمرون","description":"یک سیخ جوجه بدون استخوان ران ذغالی(500 گرم)،نان تازه داغ،گوجه فرنگی،فلفل کبابی،ریحان تازه،سس انار،پیاز قرمز","unitPrice":"320000","imageUrl":"images/Product-images/joje.ran.jpg","foodId":"4"}
+          ,{"foodName":"کباب بره شمرون","description":"یک سیخ راسته بره ذغالی(380 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز","unitPrice":"650000","imageUrl":"images/Product-images/kabab.bare.jpg","foodId":"5"}
+        ]
+      function creatmenu() {
+       
+      
+        let str =""
+        for (let index = 0; index < foods.length; index++) {
+          var f = foods[index];
+          str = str +`<div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>${f.description}</p>
+                </div>
+                <img class="product-image" src="${f.imageUrl}" alt="${f.foodName}">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">${f.foodName}</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">${f.unitPrice}</span>تومان </span>
+                  <span class="add-button" style="display : ${setvisibility(f.foodId)}" onclick="reducefoodquantity(${f.foodId})"><i class="add-icon fa fa-minus" aria-hidden="true"></i> </span>
+                  <span class="quantity-box"><h5></h5></span>
+                  <span class="add-button" onclick="addfoodtobasket(${f.foodId})"><i class="add-icon fa fa-plus" aria-hidden="true"></i> </span>
+                </div>
+                </div>
+              </div>`
+        }
+        document.getElementById("productsBoxKabab").innerHTML=str
+      }
+      
+      class basketitems{
+        constructor(FoodId,FoodName,UnitPrice,Quantity,TotalPrice){
+          this.FoodId=FoodId
+          this.FoodName=FoodName
+          this.UnitPrice=UnitPrice
+          this.Quantity=Quantity
+          this.TotalPrice=TotalPrice
+        }
+      }
+      let myBasket=[]
+      function addfoodtobasket(FoodId) {
+        var exist = false
+        for (let index = 0; index < myBasket.length; index++) {
+          if (myBasket[index].FoodId==FoodId) {
+            exist =true
+            myBasket[index].Quantity =myBasket[index].Quantity + 1
+          }
+          
+        }
+        if(!exist){
+          for (let index = 0; index < foods.length; index++) {
+         if (foods[index].foodId==FoodId) {
+          let b =new basketitems(foods[index].foodId,foods[index].foodName,foods[index].unitPrice,1,1*foods[index].unitPrice)
+          myBasket.push(b)
+         } 
+          
+        }
+        
+        }
+        creatmenu()
+        creatbaskettable()
+      }
+      function creatbaskettable(){
+        let tbl =`
+         <div class="basket-box">
+        <div class="header-basket">
+            <span>
+            <h4 class="header-basket-text">سبد خرید</h4>
+          <span class="header-basket-quantity">()</span>
+          </span>
+          <span class="header-basket-icon" ><i class="fa fa-trash" aria-hidden="true"></i></span>
+          </div>
+        `
+          var sum =0
+          var tax =0
+          var totalPrice =0
+        for (let index = 0; index < myBasket.length; index++) {
+         
+          tbl =tbl +`
+          
+           
+          <div class="product-body-basket">
+            <div class="product-box-basket">
+            <div class="name-price-basket">
+              <h3 class="product-name">${myBasket[index].FoodName}</h3>
+              <span class="price-box"><span class="price">${myBasket[index].UnitPrice}</span>تومان </span>
+            </div>
+            <div class="add-mines-basket">
+              <span class="basket-button" ><i class="add-icon fa fa-minus" aria-hidden="true"></i></span>
+              <span class="quantity-box">${myBasket[index].Quantity}</span>
+              <span class="basket-button" ><i class="add-icon fa fa-plus" aria-hidden="true"></i></span>
+            </div>
+          </div>
+          </div>
+          
+        `
+          sum =sum + myBasket[index].Quantity * myBasket[index].UnitPrice
+          tax =sum * 0.09
+          totalPrice=tax + sum
+
+        }
+        tbl =tbl + `
+        <div class="footer-basket">
+          <div class="tax-box">
+            <span class="text-tax">مالیات %9</span>
+            <span class="int-tax">${tax}   تومان</span>
+          </div>
+          <div class="total-price">
+            <span class="text-total">هزینه ی کل</span>
+            <span class="int-total">${totalPrice}     تومان</span>
+          </div>
+          <div class="fullfill-box">
+            <span class="text-fullfill"><a href= # >کد تخفیف دارید؟</a></span>
+            <span class="button-fullfill btn btn-lg text-dark">تکمیل سفارش</span>
+          </div>
+        </div>
+        </div>`
+        document.getElementById("leftBox").innerHTML=tbl
+      }
+      function reducefoodquantity(FoodId) {
+        for (let index = 0; index < myBasket.length; index++) {
+          if (myBasket[index].FoodId==FoodId) {
+            if (myBasket[index].Quantity > 1) {
+              myBasket[index].Quantity =myBasket[index].Quantity - 1 
+            }
+            else{
+            myBasket.splice(index,1)
+          }
+          }
+  
+        } 
+        creatmenu()
+        creatbaskettable()
+      }
+      function setvisibility(FoodId) {
+        if (myBasket.length==0) {
+          return "none"
+        }
+        for (let index = 0; index < myBasket.length; index++) {
+          if (myBasket[index].FoodId==FoodId) {
+            return "block"
+          }
+          
+        }
+        return "none"
+      }
+      function clearallbasket(FoodId) {
+        var emptyTable =` <div class="basket-box-empty">
+          <div class="header-basket">
+            <h4>سبد خرید</h4>
+          </div>
+          <div  class="body-basket">
+            <i class="icon-basket fa fa-shopping-cart" aria-hidden="true"></i>
+            <p class="text-basket">سبد خرید خالی است</p>
+          </div>
+        </div>`
+        for (let index = 0; index < myBasket.length; index++) {
+          if (myBasket[index].Quantity==0) {
+            document.getElementById("leftBox").innerHTML=emptyTable
+          }
+      creatmenu()
+        creatbaskettable()
+        }
+        creatmenu()
+        creatbaskettable()
+      }
+    </script>
+</head>
+<body onload="creatmenu()">
+    <div id="header" class="header">
+        <div class="header-top">
+            <div class="logo">
+                <a href="#">
+                    <img class="logo-with-text" src="images/them-images/logo-with-text.png" alt="Logo">
+                    <img class="logo-without-text" src="images/them-images/logo-without-text.png" alt="Logo">
+                </a>
+            </div>
+            <div class="nav-entrance-bar">
+                <ul class="nav nav-items">
+                    <li class="navItem nav-item"><a class="navLink nav-link" href="#">صفحه اصلی</a></li>
+                    <li class="navItem nav-item"><a class="navLink nav-link" href="#">سفارش اینترنتی</a></li>
+                    <li class="navItem nav-item"><a class="navLink nav-link" href="#">درباره</a></li>
+                    <li class="navItem nav-item"><a class="navLink nav-link" href="#">تماس با ما</a></li>
+                </ul>
+                <button type="button" class="entrance-button btn btn-outline-warning " data-toggle="modal" data-target="#entranceModal">
+                    <i class="entrance-icon fa fa-user-o" aria-hidden="true"></i>
+                    <span class="entrance-text">ورود / عضویت</span>
+                </button>
+                
+                  <!-- The Modal -->
+                  <div class="modal fade" id="entranceModal">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <button type="button" class="close float-left" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <button type="button" class="btn btn-danger text-center" data-dismiss="modal">Close</button>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                  <a  href="#" class="nav-icon">
+                    <i class="icon fa fa-bars" aria-hidden="true"></i>
+                  </a>
+            </div>     
+        </div>
+        <div class="header-bottom">
+          <div class="black-background">
+            <div class="address-box">
+                <h1 class="area-text">تجریش</h1>
+                <h3 class="address-text">آدرس: میدان تجریش، ضلع شمال شرقی</h3>
+                <button type="button" class="change-address-button btn btn-light " data-toggle="modal" data-target="#changeAddressModal">
+                    <span class="change-address-text">تغییر مجموعه</span>
+                    <i class="change-address-icon fa fa-angle-down" aria-hidden="true"></i>
+                </button>
+                
+                  <!-- The Modal -->
+                  <div class="modal fade" id="changeAddressModal">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                      
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <button type="button" class="close float-left" data-dismiss="modal">×</button>
+                        </div>
+                        
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <button type="button" class="btn btn-danger text-center" data-dismiss="modal">Close</button>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+            </div>
+            <div class="order-add" >
+                <span class="spinner-grow spinner-grow-sm text-success"></span> 
+                <h4>سفارش می پذیریم</h4>
+            </div>
+          </div>  
+        </div>
+    </div>
+    <div class="container-box container col-12 mt-5 d-flex align-items-start justify-content-around flex-wrap">
+      <div class="right-box col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12 ">
+        <ul class="nav nav-tabs nav-justified col-xl-6 col-lg-6 col-md-11 col-sm-11 col-11 " role="tablist">
+          <li class="nav-item"><a href="#orderMenu" class="nav-link active text-dark" data-toggle="tab">منوی سفارش</a></li>
+          <li class="nav-item"><a href="#restaurantInformation" class="nav-link text-dark" data-toggle="tab">اطلاعات رستوران</a></li>
+      </ul>
+      <div class="tab-content bg-white">
+          <br>
+          <div id="orderMenu" class="container tab-pane active">
+            <div class="nav-box">
+              <button class="button-nav">
+                <span class="spn-button-nav"></span>
+                  <i class="icon-button-nav fa fa-angle-right" aria-hidden="true"></i>
+                </span>
+              </button>
+              <div class="nav-items">
+                <div class="nav-item">
+                  <a class="nav-link" href="#kabab">
+                    <span class="nav-item-icon-kabab"></span>
+                    <span class="nav-item-text">کباب</span>
+                  </a>
+                </div>
+                <div class="nav-item">
+                  <a class="nav-link" href="#dish">
+                    <span class="nav-item-icon-dish"></span>
+                    <span class="nav-item-text">منوی ترکیبی</span>
+                  </a>
+                </div>
+                <div class="nav-item">
+                  <a class="nav-link" href="#salad">
+                    <span class="nav-item-icon-salad"></span>
+                    <span class="nav-item-text">پیش غذا</span>
+                  </a>
+                </div>
+                <div class="nav-item">
+                  <a class="nav-link" href="#beverage">
+                    <span class="nav-item-icon-beverage"></span>
+                    <span class="nav-item-text">نوشیدنی</span>
+                  </a>
+                </div>
+              </div>
+              <button class="button-nav">
+                <span class="spn-button-nav">
+                  <i class="icon-button-nav fa fa-angle-left" aria-hidden="true"></i>
+                </span>
+              </button>
+            </div>
+            <div class="search-box d-flex align-items-start justify-content-start">
+              <div class="search-Box-layer2">
+                <form action="#" method="get">
+                  <span class="search-Box-icon fa fa-search" aria-hidden="true"></span>
+                    <input class="search-Box-input" id="searchBox" type="text" name="searchBox"
+                        placeholder="جستجوی سریع">
+                </form>
+            </div>
+            </div>
+            <div  class="products-box" id="productsBox">
+              <h1 id="kabab" class="product-topic">کباب</h1>
+              <div id="productsBoxKabab" class="productsBoxKabab">
+               <!-- <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button" onclick="addfoodtobasket(${f.foodId})"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>  -->
+              </div>
+              <h1 id="dish" class="product-topic">منوی ترکیبی</h1>
+              <div id="productsBoxBlendedMenu" class="productsBoxBlendedMenu">
+              <!-- <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div> -->
+              </div>
+              <h1 id="salad" class="product-topic">پیش غذا</h1>
+              <div id="productsBoxSalad" class="productsBoxSalad">
+              <!-- <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div> -->
+              </div>
+              <h1 id="beverage" class="product-topic">نوشیدنی</h1>
+              <div id="productsBoxBeverage" class="productsBoxBeverage">
+              <!-- <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div>
+              <div class="product-box col-xl-4 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="image-box">
+                  <div class="overlay-box">
+                  <p>دوسیخ کباب لقمه گوسفندی ذغالی(هر سیخ 250 گرم)،گوجه فرنگی،فلفل کبابی،ریحان تازه،ترشی انبه،پیاز قرمز</p>
+                </div>
+                <img class="product-image" src="images/Product-images/kabab.jpg" alt="kabab.loghme-gosfandi">
+                </div>
+                <div class="product-contant">
+                  <h3 class="product-name">کباب لقمه گوسفندی شمرون</h3>
+                <div class="price-contant">
+                  <span class="price-box"><span class="price">230,000</span>تومان </span>
+                  <span class="add-button"><i class="add-icon fa fa-plus" aria-hidden="true"></i>
+                  </span>
+                </div>
+                </div>
+              </div> -->
+              </div>
+            </div>
+          </div>
+          <div id="restaurantInformation" class="container tab-pane"></div>
+      </div>
+      </div>
+      <div id="leftBox" class="left-box  col-xl-3 col-lg-3  col-md-6 col-sm-9 col-11">
+        <div class="basket-box-empty">
+          <div class="header-basket">
+            <h4>سبد خرید</h4>
+          </div>
+          <div  class="body-basket">
+            <i class="icon-basket fa fa-shopping-cart" aria-hidden="true"></i>
+            <p class="text-basket">سبد خرید خالی است</p>
+          </div>
+        </div>
+        <!-- <div class="basket-box">
+          <div class="header-basket">
+          <span>
+          <h4 class="header-basket-text">سبد خرید</h4>
+        <span class="header-basket-quantity">()</span>
+        </span>
+        <span class="header-basket-icon"><i class="fa fa-trash" aria-hidden="true"></i></span>
+        </div>
+        <div class="product-body-basket">
+          <div class="product-box-basket">
+          <div class="name-price-basket">
+            <h3 class="product-name">FoodName</h3>
+            <span class="price-box"><span class="price">29000</span>تومان </span>
+          </div>
+          <div class="add-mines-basket">
+            <span class="basket-button" onclick="reducefoodquantity(foodId)"><i class="add-icon fa fa-minus" aria-hidden="true"></i></span>
+            <span class="quantity-box">2</span>
+            <span class="basket-button" onclick="addfoodtobasket(foodId)"><i class="add-icon fa fa-plus" aria-hidden="true"></i></span>
+          </div>
+        </div>
+        </div>
+        <div class="footer-basket">
+          <div class="tax-box">
+            <span class="text-tax">مالیات %9</span>
+            <span class="int-tax">   تومان</span>
+          </div>
+          <div class="total-price">
+            <span class="text-total">هزینه ی کل</span>
+            <span class="int-total">     تومان</span>
+          </div>
+          <div class="fullfill-box">
+            <span class="text-fullfill">کد تخفیف دارید؟</span>
+            <span class="button-fullfill btn btn-lg text-dark">تکمیل سفارش</span>
+          </div>
+        </div>
+      </div> -->
+
+      </div>
+    </div>
+    <div class="footer">
+      <div class="footer-top">
+        <span class="spn-footer-top">© حقوق مادی و معنوی متعلق به <a class="footer-top-link" href="#">شمرون کباب</a> است </span>
+        <span class="icon-footer-top">
+          <i class="fa fa-facebook" aria-hidden="true"></i>
+          <i class="fa fa-instagram" aria-hidden="true"></i>
+        </span>
+      </div>
+      <div class="footer-center"><span>طراحی و پیاده سازی توسط</span><span class="delino-logo"><img class="img-delino" src="images/them-images/img-delino-symbol.png" alt="delino"> دلینو</span></div>
+      <div class="footer-bottom">
+        <div class="footer-btn btn btn-dark"><a href="#"><img class="footer-image" src="images/them-images/label-app-ios-sibche.png" alt="sibche"></a></div>
+        <div class="footer-btn btn btn-dark"><a href="#"><img class="footer-image" src="images/them-images/label-app-android-bazaar.png" alt="bazar"></a></div>
+      </div>
+    </div>
+</body>
+</html>
